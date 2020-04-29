@@ -22,6 +22,10 @@ if (POLICY CMP0075)
   cmake_policy(SET CMP0075 NEW)
 endif()
 
+if (POLICY CMP0026)
+  cmake_policy(SET CMP0026 OLD)
+endif()
+
 # This must be consistent with the release_version in
 # android/build.gradle and npm/package.json
 project(Hermes
@@ -126,10 +130,14 @@ set(ANDROID_LINUX_PERF_PATH ""
 set(HERMES_MSVC_MP ON CACHE STRING
   "Enable /MP in MSVC for parallel builds")
 
-# On Android we need an ABI specific version of LLVM.
-# Unfortunately, the build system doesn't allow setting the
-# LLVM_BUILD_DIR per ABI, so we do it here instead.
-if (HERMES_IS_ANDROID)
+if (NOT HERMES_IS_MOBILE_BUILD AND APPLE)
+  # macOS developers are likely to want to step through code in a debugger and
+  # clang doesn't emit dwarf metadata by default for c++, so set it explicitly.
+  set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf")
+elseif (HERMES_IS_ANDROID)
+  # On Android we need an ABI specific version of LLVM.
+  # Unfortunately, the build system doesn't allow setting the
+  # LLVM_BUILD_DIR per ABI, so we do it here instead.
   set(LLVM_BUILD_DIR "${LLVM_BUILD_BASE}-${ANDROID_ABI}")
   add_definitions(-DHERMES_PLATFORM_UNICODE=HERMES_PLATFORM_UNICODE_JAVA)
 
@@ -499,6 +507,7 @@ endif()
 add_subdirectory(tools)
 add_subdirectory(include)
 add_subdirectory(lib)
+add_subdirectory(public)
 add_subdirectory(external)
 add_subdirectory(unittests)
 add_subdirectory(${HERMES_JSI_DIR}/jsi ${CMAKE_CURRENT_BINARY_DIR}/jsi)
