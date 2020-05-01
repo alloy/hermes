@@ -24,6 +24,7 @@ class raw_ostream;
 
 namespace hermes {
 namespace vm {
+class GCExecTrace;
 struct MockedEnvironment;
 } // namespace vm
 } // namespace hermes
