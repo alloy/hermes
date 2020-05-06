@@ -4,7 +4,7 @@ module HermesHelper
   end
 
   def self.configure_command
-    "./utils/build/configure.py --build-type=Debug ./build"
+    "./utils/build/configure.py --build-type=Debug  --cmake-flags='-DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
   end
 end
 
@@ -19,24 +19,19 @@ Pod::Spec.new do |spec|
   spec.source      = { git: "https://github.com/facebook/hermes.git", tag: "v#{spec.version}" }
   spec.platforms   = { :osx => "10.14" }
 
-  spec.public_header_files = "build/public/**/*.{h,def}"
-  spec.preserve_paths      = "build/public/**/*.{h,def}", "build/bin/*"
-  spec.header_mappings_dir = "build/public"
-  spec.vendored_libraries  = "build/API/hermes/libhermes.dylib"
+  spec.preserve_paths      = "destroot/bin/*"
+  spec.source_files        = "destroot/include/**/*.h"
+  spec.header_mappings_dir = "destroot/include"
+  spec.vendored_libraries  = "destroot/lib/libhermes.dylib"
   spec.xcconfig            = { "CLANG_CXX_LANGUAGE_STANDARD" => "c++14", "CLANG_CXX_LIBRARY" => "compiler-default" }
 
-  configure_command = "./utils/build/configure.py --build-type=Debug build"
   spec.prepare_command = <<-EOS
     if #{HermesHelper.command_exists?("cmake")}; then
       if #{HermesHelper.command_exists?("ninja")}; then
-        #{HermesHelper.configure_command} --build-system='Ninja' && cd ./build && ninja
+        #{HermesHelper.configure_command} --build-system='Ninja' && cd ./build && ninja install
       else
-        #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd ./build && make
+        #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd ./build && make install
       fi
-      cd ..
-      rsync -zarv --include "*/" --include="*.h" --exclude="*" public build/
-      rsync -zarv --include "*/" --include="*.h" --exclude="*" API/hermes/ build/public/hermes/
-      rsync -zarv --include "*/" --include="*.h" --exclude="*" API/jsi/ build/public/
     else
       echo >&2 'CMake is required to install Hermes, install it with: brew install cmake'
       exit 1
