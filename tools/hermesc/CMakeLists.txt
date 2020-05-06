@@ -27,3 +27,7 @@ target_link_libraries(hermesc
 )
 
 hermes_link_icu(hermesc)
+
+install(TARGETS hermesc
+  RUNTIME DESTINATION bin
+)

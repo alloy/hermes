@@ -73,3 +73,10 @@ set_target_properties(libhermes PROPERTIES
   OUTPUT_NAME hermes
   )
 hermes_link_icu(libhermes)
+
+install(TARGETS libhermes
+  LIBRARY DESTINATION lib
+)
+install(DIRECTORY "${PROJECT_SOURCE_DIR}/API/hermes" DESTINATION include
+  FILES_MATCHING PATTERN "*.h"
+  PATTERN "synthtest" EXCLUDE)
