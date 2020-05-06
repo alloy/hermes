@@ -20,7 +20,7 @@ Pod::Spec.new do |spec|
   spec.platforms   = { :osx => "10.14" }
 
   spec.public_header_files = "build/public/**/*.{h,def}"
-  spec.preserve_paths      = "build/public/**/*.{h,def}"
+  spec.preserve_paths      = "build/public/**/*.{h,def}", "build/bin/*"
   spec.header_mappings_dir = "build/public"
   spec.vendored_libraries  = "build/API/hermes/libhermes.dylib"
   spec.xcconfig            = { "CLANG_CXX_LANGUAGE_STANDARD" => "c++14", "CLANG_CXX_LIBRARY" => "compiler-default" }
