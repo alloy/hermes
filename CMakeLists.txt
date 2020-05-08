@@ -51,6 +51,9 @@ if (POLICY CMP0023)
   cmake_policy(SET CMP0023 OLD)
 endif()
 
+if (POLICY CMP0026)
+  cmake_policy(SET CMP0026 OLD)
+endif()
 
 # This must be consistent with the release_version in
 # android/build.gradle and npm/package.json
@@ -176,7 +179,11 @@ set(HERMES_MSVC_MP ON CACHE STRING
 set(EMSCRIPTEN_FASTCOMP ON CACHE BOOL
   "Emscripten is using the fastcomp backend instead of the LLVM one")
 
-if (HERMES_IS_ANDROID)
+if (NOT HERMES_IS_MOBILE_BUILD AND APPLE)
+  # macOS developers are likely to want to step through code in a debugger and
+  # clang doesn't emit dwarf metadata by default for c++, so set it explicitly.
+  set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf")
+elseif (HERMES_IS_ANDROID)
   set(HERMES_IS_MOBILE_BUILD TRUE)
 
   add_definitions(-DHERMES_PLATFORM_UNICODE=HERMES_PLATFORM_UNICODE_JAVA)
