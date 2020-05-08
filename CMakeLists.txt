@@ -22,6 +22,10 @@ if (POLICY CMP0075)
   cmake_policy(SET CMP0075 NEW)
 endif()
 
+if (POLICY CMP0026)
+  cmake_policy(SET CMP0026 OLD)
+endif()
+
 # This must be consistent with the release_version in
 # android/build.gradle and npm/package.json
 project(Hermes
@@ -120,10 +124,14 @@ set(ANDROID_LINUX_PERF_PATH ""
   CACHE STRING
   "If buildling for Android, full path to <linux/perf_events.h>")
 
+if (NOT HERMES_IS_MOBILE_BUILD AND APPLE)
+  # macOS developers are likely to want to step through code in a debugger and
+  # clang doesn't emit dwarf metadata by default for c++, so set it explicitly.
+  set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf")
 # On Android we need an ABI specific version of LLVM.
 # Unfortunately, the build system doesn't allow setting the
 # LLVM_BUILD_DIR per ABI, so we do it here instead.
-if (HERMES_IS_ANDROID)
+elseif (HERMES_IS_ANDROID)
   set(LLVM_BUILD_DIR "${LLVM_BUILD_BASE}-${ANDROID_ABI}")
   add_definitions(-DHERMES_PLATFORM_UNICODE=HERMES_PLATFORM_UNICODE_JAVA)
 

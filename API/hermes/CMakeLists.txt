@@ -80,3 +80,13 @@ install(TARGETS libhermes
 install(DIRECTORY "${PROJECT_SOURCE_DIR}/API/hermes" DESTINATION include
   FILES_MATCHING PATTERN "*.h"
   PATTERN "synthtest" EXCLUDE)
+
+if(APPLE AND CMAKE_CXX_FLAGS_DEBUG MATCHES "-gdwarf")
+  set(CMAKE_DSYMUTIL xcrun dsymutil)
+  get_target_property(DSYM_PATH libhermes LOCATION)
+  add_custom_command(TARGET libhermes POST_BUILD
+    COMMAND ${CMAKE_DSYMUTIL} $<TARGET_FILE:libhermes>
+    BYPRODUCTS "${DSYM_PATH}.dSYM"
+  )
+  install(DIRECTORY "${DSYM_PATH}.dSYM" DESTINATION lib)
+endif()
