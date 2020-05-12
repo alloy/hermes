@@ -19,7 +19,7 @@ Pod::Spec.new do |spec|
   spec.source      = { git: "https://github.com/facebook/hermes.git", tag: "v#{spec.version}" }
   spec.platforms   = { :osx => "10.14" }
 
-  spec.preserve_paths      = "destroot/bin/*"
+  spec.preserve_paths      = "destroot/bin/*", "**/*.{h,c,cpp}"
   spec.source_files        = "destroot/include/**/*.h"
   spec.header_mappings_dir = "destroot/include"
   spec.vendored_libraries  = "destroot/lib/libhermes.dylib"
