@@ -1,10 +1,21 @@
 module HermesHelper
+  # BUILD_TYPE = :debug
+  BUILD_TYPE = :release
+
   def self.command_exists?(bin)
     "command -v #{bin} > /dev/null 2>&1"
   end
 
+  def self.llvm_configure_command
+    "./utils/build/build_llvm.py #{"--distribute" if BUILD_TYPE == :release}"
+  end
+
   def self.configure_command
-    "./utils/build/configure.py --build-type=Debug  --cmake-flags='-DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
+    "./utils/build/configure.py #{BUILD_TYPE == :release ? "--distribute" : "--build-type=Debug"} --cmake-flags='-DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
+  end
+
+  def self.build_dir
+    BUILD_TYPE == :release ? "build_release" : "build"
   end
 end
 
@@ -26,12 +37,12 @@ Pod::Spec.new do |spec|
   spec.xcconfig            = { "CLANG_CXX_LANGUAGE_STANDARD" => "c++14", "CLANG_CXX_LIBRARY" => "compiler-default" }
 
   spec.prepare_command = <<-EOS
-    ./utils/build/build_llvm.py
+    #{HermesHelper.llvm_configure_command}
     if #{HermesHelper.command_exists?("cmake")}; then
       if #{HermesHelper.command_exists?("ninja")}; then
-        #{HermesHelper.configure_command} --build-system='Ninja' && cd ./build && ninja install
+        #{HermesHelper.configure_command} --build-system='Ninja' && cd #{HermesHelper.build_dir} && ninja install
       else
-        #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd ./build && make install
+        #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd #{HermesHelper.build_dir} && make install
       fi
     else
       echo >&2 'CMake is required to install Hermes, install it with: brew install cmake'
