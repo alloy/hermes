@@ -37,16 +37,18 @@ Pod::Spec.new do |spec|
   spec.xcconfig            = { "CLANG_CXX_LANGUAGE_STANDARD" => "c++14", "CLANG_CXX_LIBRARY" => "compiler-default" }
 
   spec.prepare_command = <<-EOS
-    #{HermesHelper.llvm_configure_command}
-    if #{HermesHelper.command_exists?("cmake")}; then
-      if #{HermesHelper.command_exists?("ninja")}; then
-        #{HermesHelper.configure_command} --build-system='Ninja' && cd #{HermesHelper.build_dir} && ninja install
+    if [ ! -f destroot/lib/libhermes.dylib ]; then
+      #{HermesHelper.llvm_configure_command}
+      if #{HermesHelper.command_exists?("cmake")}; then
+        if #{HermesHelper.command_exists?("ninja")}; then
+          #{HermesHelper.configure_command} --build-system='Ninja' && cd #{HermesHelper.build_dir} && ninja install
+        else
+          #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd #{HermesHelper.build_dir} && make install
+        fi
       else
-        #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd #{HermesHelper.build_dir} && make install
+        echo >&2 'CMake is required to install Hermes, install it with: brew install cmake'
+        exit 1
       fi
-    else
-      echo >&2 'CMake is required to install Hermes, install it with: brew install cmake'
-      exit 1
     fi
   EOS
 end
