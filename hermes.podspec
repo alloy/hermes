@@ -1,10 +1,13 @@
 module HermesHelper
+  BUILD_TYPE = :debug
+  # BUILD_TYPE = :release
+
   def self.command_exists?(bin)
     "command -v #{bin} > /dev/null 2>&1"
   end
 
   def self.configure_command
-    "./utils/build/configure.py --build-type=Debug  --cmake-flags='-DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
+    "./utils/build/configure.py #{BUILD_TYPE == :release ? "--distribute" : "--build-type=Debug"} --cmake-flags='-DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
   end
 end
 
@@ -23,18 +26,20 @@ Pod::Spec.new do |spec|
   spec.source_files        = "destroot/include/**/*.h"
   spec.header_mappings_dir = "destroot/include"
   spec.vendored_libraries  = "destroot/lib/libhermes.dylib"
-  spec.xcconfig            = { "CLANG_CXX_LANGUAGE_STANDARD" => "c++14", "CLANG_CXX_LIBRARY" => "compiler-default" }
+  spec.xcconfig            = { "CLANG_CXX_LANGUAGE_STANDARD" => "c++14", "CLANG_CXX_LIBRARY" => "compiler-default", "GCC_PREPROCESSOR_DEFINITIONS" => "HERMES_ENABLE_DEBUGGER=1" }
 
   spec.prepare_command = <<-EOS
-    if #{HermesHelper.command_exists?("cmake")}; then
-      if #{HermesHelper.command_exists?("ninja")}; then
-        #{HermesHelper.configure_command} --build-system='Ninja' && cd ./build && ninja install
+    if [ ! -f destroot/lib/libhermes.dylib ]; then
+      if #{HermesHelper.command_exists?("cmake")}; then
+        if #{HermesHelper.command_exists?("ninja")}; then
+          #{HermesHelper.configure_command} --build-system='Ninja' && cd build && ninja install
+        else
+          #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd build && make install
+        fi
       else
-        #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd ./build && make install
+        echo >&2 'CMake is required to install Hermes, install it with: brew install cmake'
+        exit 1
       fi
-    else
-      echo >&2 'CMake is required to install Hermes, install it with: brew install cmake'
-      exit 1
     fi
   EOS
 end
