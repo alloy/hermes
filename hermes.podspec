@@ -9,6 +9,10 @@ module HermesHelper
   def self.configure_command
     "./utils/build/configure.py #{BUILD_TYPE == :release ? "--distribute" : "--build-type=Debug"} --cmake-flags='-DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
   end
+
+  def self.build_dir
+    BUILD_TYPE == :release ? "build_release" : "build"
+  end
 end
 
 Pod::Spec.new do |spec|
@@ -32,9 +36,9 @@ Pod::Spec.new do |spec|
     if [ ! -f destroot/lib/libhermes.dylib ]; then
       if #{HermesHelper.command_exists?("cmake")}; then
         if #{HermesHelper.command_exists?("ninja")}; then
-          #{HermesHelper.configure_command} --build-system='Ninja' && cd build && ninja install
+          #{HermesHelper.configure_command} --build-system='Ninja' && cd #{HermesHelper.build_dir} && ninja install
         else
-          #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd build && make install
+          #{HermesHelper.configure_command} --build-system='Unix Makefiles' && cd #{HermesHelper.build_dir} && make install
         fi
       else
         echo >&2 'CMake is required to install Hermes, install it with: brew install cmake'
