@@ -1,6 +1,6 @@
 module HermesHelper
-  BUILD_TYPE = :debug
-  # BUILD_TYPE = :release
+  # BUILD_TYPE = :debug
+  BUILD_TYPE = :release
 
   def self.command_exists?(bin)
     "command -v #{bin} > /dev/null 2>&1"
