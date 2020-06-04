@@ -6,6 +6,10 @@ module HermesHelper
     "command -v #{bin} > /dev/null 2>&1"
   end
 
+  def self.llvm_configure_command
+    "./utils/build/build_llvm.py #{"--distribute" if BUILD_TYPE == :release}"
+  end
+
   def self.configure_command
     "./utils/build/configure.py #{BUILD_TYPE == :release ? "--distribute" : "--build-type=Debug"} --cmake-flags='-DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
   end
@@ -34,6 +38,7 @@ Pod::Spec.new do |spec|
 
   spec.prepare_command = <<-EOS
     if [ ! -f destroot/lib/libhermes.dylib ]; then
+      #{HermesHelper.llvm_configure_command}
       if #{HermesHelper.command_exists?("cmake")}; then
         if #{HermesHelper.command_exists?("ninja")}; then
           #{HermesHelper.configure_command} --build-system='Ninja' && cd #{HermesHelper.build_dir} && ninja install
