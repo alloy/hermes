@@ -11,7 +11,7 @@ module HermesHelper
   end
 
   def self.configure_command
-    "./utils/build/configure.py #{BUILD_TYPE == :release ? "--distribute" : "--build-type=Debug"} --cmake-flags='-DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
+    "./utils/build/configure.py #{BUILD_TYPE == :release ? "--distribute" : "--build-type=Debug"} --cmake-flags='-DHERMES_ENABLE_DEBUGGER:BOOLEAN=true -DCMAKE_INSTALL_PREFIX:PATH=../destroot' build"
   end
 
   def self.build_dir
