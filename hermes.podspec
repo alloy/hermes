@@ -33,11 +33,11 @@ Pod::Spec.new do |spec|
   spec.preserve_paths      = ["destroot/bin/*"].concat(HermesHelper::BUILD_TYPE == :debug ? ["**/*.{h,c,cpp}"] : [])
   spec.source_files        = "destroot/include/**/*.h"
   spec.header_mappings_dir = "destroot/include"
-  spec.vendored_libraries  = "destroot/lib/libhermes.dylib"
+  spec.vendored_frameworks = "destroot/Library/Frameworks/hermes.framework"
   spec.xcconfig            = { "CLANG_CXX_LANGUAGE_STANDARD" => "c++14", "CLANG_CXX_LIBRARY" => "compiler-default", "GCC_PREPROCESSOR_DEFINITIONS" => "HERMES_ENABLE_DEBUGGER=1" }
 
   spec.prepare_command = <<-EOS
-    if [ ! -f destroot/lib/libhermes.dylib ]; then
+    if [ ! -f destroot/Library/Frameworks/hermes.framework ]; then
       #{HermesHelper.llvm_configure_command}
       if #{HermesHelper.command_exists?("cmake")}; then
         if #{HermesHelper.command_exists?("ninja")}; then
