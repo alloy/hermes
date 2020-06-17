@@ -23,3 +23,5 @@ set_property(TARGET hermes-jsi APPEND_STRING PROPERTY
 target_link_libraries(hermes-jsi
   hermesapi
   )
+
+hermes_strip_debug_symbols(hermes-jsi)

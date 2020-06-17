@@ -43,3 +43,4 @@ target_link_libraries(hermes-repl
 )
 
 hermes_link_icu(hermes-repl)
+hermes_strip_debug_symbols(hermes-repl)

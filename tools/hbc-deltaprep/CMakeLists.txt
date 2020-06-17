@@ -21,3 +21,4 @@ target_link_libraries(hbc-deltaprep
 )
 
 hermes_link_icu(hbc-deltaprep)
+hermes_strip_debug_symbols(hbc-deltaprep)

@@ -21,6 +21,8 @@ target_link_libraries(hdb
   hermesapi
 )
 
+hermes_strip_debug_symbols(hdb)
+
 install(TARGETS hdb
   RUNTIME DESTINATION bin
 )

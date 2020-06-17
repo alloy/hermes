@@ -37,7 +37,7 @@ Pod::Spec.new do |spec|
   spec.xcconfig            = { "CLANG_CXX_LANGUAGE_STANDARD" => "c++14", "CLANG_CXX_LIBRARY" => "compiler-default", "GCC_PREPROCESSOR_DEFINITIONS" => "HERMES_ENABLE_DEBUGGER=1" }
 
   spec.prepare_command = <<-EOS
-    if [ ! -f destroot/Library/Frameworks/hermes.framework ]; then
+    if [ ! -d destroot/Library/Frameworks/hermes.framework ]; then
       #{HermesHelper.llvm_configure_command}
       if #{HermesHelper.command_exists?("cmake")}; then
         if #{HermesHelper.command_exists?("ninja")}; then

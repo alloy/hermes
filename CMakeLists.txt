@@ -131,9 +131,9 @@ set(HERMES_MSVC_MP ON CACHE STRING
   "Enable /MP in MSVC for parallel builds")
 
 if (NOT HERMES_IS_MOBILE_BUILD AND APPLE)
-  # macOS developers are likely to want to step through code in a debugger and
-  # clang doesn't emit dwarf metadata by default for c++, so set it explicitly.
-  set(CMAKE_CXX_FLAGS_DEBUG "-gdwarf")
+  # Always emit debugging symbols (in the DWARF) format, as these will be
+  # stripped out of each target post-build.
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -gdwarf")
 elseif (HERMES_IS_ANDROID)
   # On Android we need an ABI specific version of LLVM.
   # Unfortunately, the build system doesn't allow setting the
@@ -158,6 +158,17 @@ elseif (HERMES_IS_ANDROID)
     set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -fuse-ld=gold")
   endif()
 endif()
+
+function(hermes_strip_debug_symbols target_name)
+  if(APPLE)
+    if(NOT CMAKE_STRIP)
+      set(CMAKE_STRIP xcrun strip)
+    endif()
+    add_custom_command(TARGET ${target_name} POST_BUILD
+      COMMAND ${CMAKE_STRIP} -S $<TARGET_FILE:${target_name}>
+    )
+  endif()
+endfunction()
 
 # The hermes project is built using CMake and the LLVM's build system.
 # It expects LLVM_SRC_DIR and LLVM_BUILD_DIR to be set. For example:
