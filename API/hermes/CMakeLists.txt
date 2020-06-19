@@ -91,8 +91,7 @@ set_target_properties(libhermes PROPERTIES
   OUTPUT_NAME hermes
 )
 
-if(APPLE)
-  # Build a framework bundle on Apple platforms
+if(APPLE AND HERMES_BUILD_APPLE_FRAMEWORK)
   set_target_properties(libhermes PROPERTIES
     FRAMEWORK TRUE
     VERSION ${PROJECT_VERSION}
@@ -122,7 +121,7 @@ install(DIRECTORY "${PROJECT_SOURCE_DIR}/API/hermes" DESTINATION include
   FILES_MATCHING PATTERN "*.h"
   PATTERN "synthtest" EXCLUDE)
 
-# Create debug symbols (dSYM) bundle for Apple platform frameworks
+# Create debug symbols (dSYM) bundle for Apple platform dylibs/frameworks
 # Largely inspired by https://github.com/llvm/llvm-project/blob/6701993027f8af172d7ba697884459261b00e3c6/llvm/cmake/modules/AddLLVM.cmake#L1934-L1986
 if(APPLE AND CMAKE_CXX_FLAGS MATCHES "-gdwarf")
   if(CMAKE_CXX_FLAGS MATCHES "-flto")
@@ -130,8 +129,10 @@ if(APPLE AND CMAKE_CXX_FLAGS MATCHES "-gdwarf")
     set_property(TARGET libhermes APPEND_STRING PROPERTY LINK_FLAGS " -Wl,-object_path_lto,${lto_object}")
   endif()
 
-  get_target_property(FRAMEWORK_BUNDLE_PATH libhermes LOCATION)
-  get_filename_component(DSYM_PATH ${FRAMEWORK_BUNDLE_PATH} DIRECTORY)
+  get_target_property(DSYM_PATH libhermes LOCATION)
+  if(HERMES_BUILD_APPLE_FRAMEWORK)
+    get_filename_component(DSYM_PATH ${DSYM_PATH} DIRECTORY)
+  endif()
   set(DSYM_PATH "${DSYM_PATH}.dSYM")
 
   if(NOT CMAKE_DSYMUTIL)
@@ -142,7 +143,11 @@ if(APPLE AND CMAKE_CXX_FLAGS MATCHES "-gdwarf")
     BYPRODUCTS ${DSYM_PATH}
   )
 
-  install(DIRECTORY ${DSYM_PATH} DESTINATION Library/Frameworks)
+  if(HERMES_BUILD_APPLE_FRAMEWORK)
+    install(DIRECTORY ${DSYM_PATH} DESTINATION Library/Frameworks)
+  else()
+    install(DIRECTORY ${DSYM_PATH} DESTINATION lib)
+  endif()
 endif()
 
 hermes_strip_debug_symbols(libhermes)

@@ -130,6 +130,9 @@ set(ANDROID_LINUX_PERF_PATH ""
 set(HERMES_MSVC_MP ON CACHE STRING
   "Enable /MP in MSVC for parallel builds")
 
+set(HERMES_BUILD_APPLE_FRAMEWORK ON CACHE BOOL
+  "Whether to build a framework bundle or dylib on Apple platforms")
+
 if (NOT HERMES_IS_MOBILE_BUILD AND APPLE)
   # Always emit debugging symbols (in the DWARF) format, as these will be
   # stripped out of each target post-build.
@@ -365,6 +368,8 @@ endif()
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 set(LLVM_MAIN_SRC_DIR ${LLVM_SRC_DIR})
+# Do not install llvm artefacts.
+set(LLVM_INSTALL_TOOLCHAIN_ONLY ON)
 include(LLVMConfig)
 include(AddLLVM)
 include(HandleLLVMOptions)
