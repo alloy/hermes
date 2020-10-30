@@ -12,6 +12,8 @@ namespace hermes {
 namespace vm {
 
 llvh::ArrayRef<uint8_t> getInternalBytecode() {
+// TODO: remove the guard
+#if 0
   // Bytecode is required to be aligned, so ensure we don't fail to load it
   // at runtime.
   alignas(hbc::BYTECODE_ALIGNMENT) static const uint8_t InternalBytecode[] = {
@@ -23,6 +25,9 @@ llvh::ArrayRef<uint8_t> getInternalBytecode() {
   };
 
   return llvh::makeArrayRef(InternalBytecode, sizeof(InternalBytecode));
+#else
+  return llvh::ArrayRef<uint8_t>{};
+#endif
 }
 } // namespace vm
 } // namespace hermes
